@@ -1,26 +1,34 @@
-import React, { useState } from "react";
-import memesData from "./memesData.js";
+import React, { useState, useEffect } from "react";
 
 function App() {
-  const [meme, setMeme] = useState(() => {
-    const memes = memesData.data.memes;
-    return memes[Math.floor(Math.random() * memes.length)];
-  });
+  const [memeImages, setMemeImages] = useState([]);
+  const [randomImage, setRandomImage] = useState("");
+  const [input, setInput] = useState({ first: "", second: "" });
 
-  const [first, setFirst] = useState("");
-  const [second, setSecond] = useState("");
-
-  const handleNewMeme = () => {
-    const memes = memesData.data.memes;
-    setMeme(memes[Math.floor(Math.random() * memes.length)]);
-    setFirst("");
-    setSecond("");
+  const generateRandomImage = () => {
+    if (memeImages.length > 0) {
+      const randomIndex = Math.floor(Math.random() * memeImages.length);
+      const image = memeImages[randomIndex];
+      setRandomImage(image.url);
+    }
   };
 
+  useEffect(() => {
+    fetch("https://api.imgflip.com/get_memes")
+      .then((response) => response.json())
+      .then((result) => {
+        setMemeImages(result.data.memes);
+      });
+  }, []);
+
+  useEffect(() => {
+    generateRandomImage();
+  }, [memeImages]);
+
   return (
-    <main className="max-w-[550px] mx-auto my-4">
+    <main className="max-w-[550px] mx-auto max-h-screen ">
       <nav
-        className="flex items-center justify-between w-full h-16 px-9 text-white"
+        className="flex items-center justify-between w-full text-white px-9 h-16"
         style={{
           background: "linear-gradient(90deg, #672280 1.18%, #A626D3 100%)",
         }}
@@ -30,34 +38,44 @@ function App() {
           React Course - Project 3
         </h4>
       </nav>
-      <div className="flex flex-col items-center m-4 gap-4">
-        <div className="flex justify-center w-full py-4 gap-4">
+      <div className="flex flex-col items-center  m-4 gap-4">
+        <div className="flex w-full gap-4 py-4 justify-center">
           <input
-            className="w-[50%] h-9 px-2 border rounded-[5px] border-[#D5D4D8]"
+            onChange={(e) => setInput({ ...input, first: e.target.value })}
+            className="px-2 w-[50%] h-9 border border-[#D5D4D8] rounded-[5px] focus:outline-none focus:border-4 focus:border-sky-400"
             placeholder=""
-            value={first}
-            onChange={(e) => setFirst(e.target.value)}
+            value={input.first}
           />
           <input
-            className="w-[50%] h-9 px-2 border rounded-[5px] border-[#D5D4D8]"
-            value={second}
-            onChange={(e) => setSecond(e.target.value)}
+            onChange={(e) => setInput({ ...input, second: e.target.value })}
+            className="px-2 w-[50%] h-9 border border-[#D5D4D8] rounded-[5px]  focus:outline-none focus:border-4 focus:border-sky-400"
+            value={input.second}
           />
         </div>
         <button
-          className="w-full h-10 rounded-[5px]"
           style={{
             background:
               "linear-gradient(90.41deg, #711F8D 1.14%, #A818DA 100%)",
           }}
-          onClick={handleNewMeme}
+          className="w-full h-10 rounded-[5px] text-xl"
+          onClick={generateRandomImage}
         >
           Get a new meme image 🖼
         </button>
-        <div className="relative text-4xl font-bold text-white">
-          <p className="absolute inset-x-4 top-4 text-auto">{first}</p>
-          <img className="w-full object-cover" src={meme?.url} alt="" />
-          <p className="absolute inset-x-4 bottom-4 text-auto">{second}</p>
+        <div
+          className={`relative text-4xl font-bold h-[500px]  p-4 text-white`}
+        >
+          <p className="absolute top-4 inset-x-4 mx-auto text-center  text-auto text-orange-500">
+            {input.first}
+          </p>
+          <img
+            className="w-full object-cover h-full"
+            src={randomImage}
+            alt=""
+          />
+          <p className="absolute bottom-4 inset-x-4 mx-auto text-auto text-center text-orange-500">
+            {input.second}
+          </p>
         </div>
       </div>
     </main>
