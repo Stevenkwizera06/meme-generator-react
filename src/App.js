@@ -21,9 +21,15 @@ function App() {
       });
   }, []);
 
-  useEffect(() => {
-    generateRandomImage();
-  }, [memeImages]);
+useEffect(() => {
+  const generateRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * memeImages.length);
+    const image = memeImages[randomIndex];
+    setRandomImage(image);
+  };
+
+  generateRandomImage();
+}, [memeImages]);
 
   return (
     <main className="max-w-[550px] mx-auto max-h-screen ">
